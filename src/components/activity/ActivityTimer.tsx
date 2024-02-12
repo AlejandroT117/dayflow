@@ -1,16 +1,24 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { FlowHiglightView, FlowRow, FlowText } from "../overrides";
 import { COLORS } from "../../variables/styles";
+import { Activity } from "../../interfaces/activity.interface";
 
-export const ActivityTimer = () => {
+interface Props {
+  activity?: Activity;
+}
+
+export const ActivityTimer: React.FC<Props> = ({ activity }) => {
+  console.log(activity);
   return (
     <FlowHiglightView style={container}>
       <FlowRow style={row}>
-        <FlowText>No Activity</FlowText>
+        <FlowText>{activity?.title || "No Activity"}</FlowText>
       </FlowRow>
       <FlowRow style={row}>
-        <FlowText style={time}>00:00:00</FlowText>
+        <FlowText style={time}>
+          {new Date((activity?.time || 0) * 1000).toISOString().substring(11, 19)}
+        </FlowText>
       </FlowRow>
     </FlowHiglightView>
   );

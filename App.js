@@ -1,19 +1,30 @@
+import { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View } from "react-native";
 import { ActivityHomeScreen } from "./src/screens/AcitivityHomeScreen";
-import {
-  SafeAreaView,
-  SafeAreaProvider,
-  SafeAreaInsetsContext,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SafeAreaScreen } from "./src/layout/SafeAreaScreen";
+import { checkStorageStatus } from "./src/storage";
+import { FlowText } from "./src/components/overrides";
 
 export default function App() {
+  const [isStorageEnabled, setIsStorageEnabled] = useState(false);
+
+  const checkStorage = async () => {
+    setIsStorageEnabled(await checkStorageStatus());
+  };
+
+  useEffect(() => {
+    checkStorage();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <SafeAreaScreen>
-        <ActivityHomeScreen />
+        {isStorageEnabled ? (
+          <ActivityHomeScreen />
+        ) : (
+          <FlowText>Storage not enabled</FlowText>
+        )}
         <StatusBar style="light" />
       </SafeAreaScreen>
     </SafeAreaProvider>
