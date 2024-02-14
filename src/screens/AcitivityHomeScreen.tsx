@@ -8,9 +8,15 @@ import { FlowRow } from "../components/overrides";
 import { Activity } from "../interfaces/activity.interface";
 import { loadDayFlowItems, storeDayFlowItems } from "../storage";
 
-export const ActivityHomeScreen = () => {
+interface Props {
+  isStorageEnabled: boolean;
+}
+
+export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [currentActivity, setCurrentActivity] = useState<Activity>();
+  const [prevActivity, setPrevActivity] = useState<Activity>();
+  const [startTime, setStartTime] = useState<number>();
 
   const getData = async () => {
     const items = await loadDayFlowItems();
@@ -22,10 +28,24 @@ export const ActivityHomeScreen = () => {
   }, []);
 
   useEffect(() => {
-    activities && storeDayFlowItems(activities);
+    activities && isStorageEnabled && storeDayFlowItems(activities);
 
     setCurrentActivity(activities.find((act) => act.isActive));
-  }, [activities]);
+  }, [activities, isStorageEnabled]);
+
+  useEffect(() => {
+    if (currentActivity) {
+      setPrevActivity(currentActivity);
+      return;
+    }
+    setStartTime(undefined);
+  }, [currentActivity]);
+
+  useEffect(() => {
+    if (startTime) {
+      setPrevActivity((prev) => prev && { ...prev, time: startTime });
+    }
+  }, [startTime]);
 
   const handleTimeChange = useCallback((id: string, time: number) => {
     setActivities((activities) =>
@@ -33,6 +53,7 @@ export const ActivityHomeScreen = () => {
         act.id === id ? { ...act, time: time } : act
       )
     );
+    setStartTime((s) => (s || 0) + 1);
   }, []);
 
   const checkActivity = useCallback((id: string, state: boolean) => {
@@ -43,11 +64,17 @@ export const ActivityHomeScreen = () => {
           : { ...act, isActive: false }
       )
     );
+    if (state) {
+      setStartTime(0);
+    }
   }, []);
 
   return (
     <View style={container}>
-      <ActivityTimer activity={currentActivity} />
+      <ActivityTimer
+        activity={currentActivity || prevActivity}
+        startTime={startTime}
+      />
       <FlowRow style={headerContainer}>
         <Text style={text}>Activities</Text>
         <Text style={text}>Add</Text>

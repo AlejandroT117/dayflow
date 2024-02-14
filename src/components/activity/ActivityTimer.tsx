@@ -6,18 +6,25 @@ import { Activity } from "../../interfaces/activity.interface";
 
 interface Props {
   activity?: Activity;
+  startTime?: number;
 }
 
-export const ActivityTimer: React.FC<Props> = ({ activity }) => {
-  console.log(activity);
+export const ActivityTimer: React.FC<Props> = ({ activity, startTime }) => {
   return (
     <FlowHiglightView style={container}>
       <FlowRow style={row}>
-        <FlowText>{activity?.title || "No Activity"}</FlowText>
+        <FlowText style={{ fontWeight: activity?.isActive ? "bold" : "400" }}>
+          {activity?.title || "No Current Activity"}
+        </FlowText>
       </FlowRow>
       <FlowRow style={row}>
         <FlowText style={time}>
-          {new Date((activity?.time || 0) * 1000).toISOString().substring(11, 19)}
+          {new Date(
+            (startTime === undefined ? activity?.time || 0 : startTime || 0) *
+              1000
+          )
+            .toISOString()
+            .substring(11, 19)}
         </FlowText>
       </FlowRow>
     </FlowHiglightView>

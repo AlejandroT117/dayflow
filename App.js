@@ -20,11 +20,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaScreen>
-        {isStorageEnabled ? (
-          <ActivityHomeScreen />
-        ) : (
-          <FlowText>Storage not enabled</FlowText>
-        )}
+        <ActivityHomeScreen isStorageEnabled={isStorageEnabled} />
         <StatusBar style="light" />
       </SafeAreaScreen>
     </SafeAreaProvider>

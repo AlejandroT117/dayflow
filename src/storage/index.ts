@@ -16,7 +16,6 @@ const storeData = async (key: string, value: any) => {
 const loadData = async (key: string) => {
   try {
     const value = await AsyncStorage.getItem(key);
-
     return value ? JSON.parse(value) : null;
   } catch (e: any) {
     console.error(`Error loading data`, e);
@@ -24,9 +23,7 @@ const loadData = async (key: string) => {
   }
 };
 
-const storeDayFlowItems = (data: Activity[]) => {
-  return storeData(DAYFLOWKEY, data);
-};
+const storeDayFlowItems = (data: Activity[]) => storeData(DAYFLOWKEY, data);
 
 const loadDayFlowItems = async () => await loadData(DAYFLOWKEY);
 
@@ -41,4 +38,10 @@ const checkStorageStatus = async () => {
   }
 };
 
-export { storeData, loadData, storeDayFlowItems, loadDayFlowItems, checkStorageStatus };
+export {
+  storeData,
+  loadData,
+  storeDayFlowItems,
+  loadDayFlowItems,
+  checkStorageStatus,
+};

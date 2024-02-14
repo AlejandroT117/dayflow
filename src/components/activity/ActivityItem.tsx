@@ -1,17 +1,21 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, PanResponder, StyleSheet } from "react-native";
 import { Activity } from "../../interfaces/activity.interface";
 import { FlowHiglightView, FlowRow, FlowText } from "../overrides";
 import { COLORS } from "../../variables/styles";
+import { LoadingDots } from "../common/LoadingDots";
+import { formatTime } from "../../utils/formatTime";
 
 const TRESHOLD = 60;
 
 interface Props {
   activity: Activity;
-  onActivityChange: (id: string,state: boolean) => void;
-  onTimeChange: (id: string,time: number) => void;
+  onActivityChange: (id: string, state: boolean) => void;
+  onTimeChange: (id: string, time: number) => void;
 }
+
 var id: number | undefined = undefined;
+
 export const ActivityItem: React.FC<Props> = ({
   activity,
   onActivityChange,
@@ -19,6 +23,7 @@ export const ActivityItem: React.FC<Props> = ({
 }) => {
   const { title, id: activityId, time, isActive } = activity;
   const pan = useRef(new Animated.ValueXY()).current;
+  const [currentState, setCurrentState] = useState(isActive);
 
   useEffect(() => {
     id && clearTimeout(id);
@@ -38,14 +43,13 @@ export const ActivityItem: React.FC<Props> = ({
       onStartShouldSetPanResponder: () => true,
       onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (e, gestState) => {
-        console.log(gestState.dx);
         const currentX = gestState.dx;
         if (currentX > TRESHOLD) {
-          onActivityChange(activityId, true);
+          setCurrentState(true);
         }
 
         if (currentX < -TRESHOLD) {
-          onActivityChange(activityId, false);
+          setCurrentState(false);
         }
 
         Animated.event([null, { dx: pan.x, dy: pan.y }], {
@@ -61,12 +65,25 @@ export const ActivityItem: React.FC<Props> = ({
     })
   ).current;
 
+  useEffect(() => {
+    if (currentState) {
+      onActivityChange(activityId, true);
+      return;
+    }
+    onActivityChange(activityId, false);
+  }, [currentState]);
+
+  const itemBg = useMemo(
+    () => (isActive ? { backgroundColor: COLORS.semiDarkGray } : {}),
+    [isActive]
+  );
+
   return (
     <Animated.View
       {...panResponder.panHandlers}
       style={{ transform: [{ translateX: pan.x }] }}
     >
-      <FlowHiglightView style={{ ...itemContainer }}>
+      <FlowHiglightView style={{ ...itemContainer, ...itemBg }}>
         <FlowRow>
           <FlowText
             style={{
@@ -77,7 +94,7 @@ export const ActivityItem: React.FC<Props> = ({
             {title}
           </FlowText>
           <FlowText style={{ ...timeText, userSelect: "none" }}>
-            {new Date(time * 1000).toISOString().substring(11, 19)}
+            {isActive ? <LoadingDots /> : formatTime(time)}
           </FlowText>
         </FlowRow>
       </FlowHiglightView>
