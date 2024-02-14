@@ -71,6 +71,11 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
 
   return (
     <View style={container}>
+      <FlowRow style={{ ...headerContainer, justifyContent: "center" }}>
+        <Text style={text}>
+          {currentActivity ? "Current " : "Last "} Activity
+        </Text>
+      </FlowRow>
       <ActivityTimer
         activity={currentActivity || prevActivity}
         startTime={startTime}
@@ -101,6 +106,7 @@ const { container, headerContainer, text } = StyleSheet.create({
   },
   headerContainer: {
     paddingVertical: 10,
+    textAlign: "center",
   },
   text: {
     fontSize: SIZES.fontMedium,
