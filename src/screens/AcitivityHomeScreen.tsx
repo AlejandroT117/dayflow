@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
+import uuid from "react-native-uuid";
 import { ActivityTimer } from "../components/activity/ActivityTimer";
 import { ActivityItem } from "../components/activity/ActivityItem";
 import defaultItems from "../data/activities.json";
 import { COLORS, SIZES } from "../variables/styles";
 import { FlowRow } from "../components/overrides";
-import { Activity } from "../interfaces/activity.interface";
+import { Activity, AddActivity } from "../interfaces/activity.interface";
 import { loadDayFlowItems, storeDayFlowItems } from "../storage";
+import { ActivityItemCreator } from "../components/activity/ActivityItemCreator";
 
 interface Props {
   isStorageEnabled: boolean;
@@ -17,6 +19,7 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
   const [currentActivity, setCurrentActivity] = useState<Activity>();
   const [prevActivity, setPrevActivity] = useState<Activity>();
   const [startTime, setStartTime] = useState<number>();
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const getData = async () => {
     const items = await loadDayFlowItems();
@@ -34,11 +37,17 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
   }, [activities, isStorageEnabled]);
 
   useEffect(() => {
+    if (currentActivity && currentActivity?.id !== prevActivity?.id) {
+      setStartTime(undefined);
+      return;
+    }
+  }, [currentActivity, prevActivity]);
+
+  useEffect(() => {
     if (currentActivity) {
       setPrevActivity(currentActivity);
       return;
     }
-    setStartTime(undefined);
   }, [currentActivity]);
 
   useEffect(() => {
@@ -64,13 +73,27 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
           : { ...act, isActive: false }
       )
     );
-    if (state) {
-      setStartTime(0);
-    }
+  }, []);
+
+  const addActivity = useCallback(({ title, description }: AddActivity) => {
+    const newActivity: Activity = {
+      id: uuid.v4().toString(),
+      description,
+      title,
+      isActive: false,
+      time: 0,
+    };
+
+    setActivities((activities) => [...activities, newActivity]);
   }, []);
 
   return (
     <View style={container}>
+      <ActivityItemCreator
+        isVisible={isModalVisible}
+        onConfirmAddition={addActivity}
+        onCancel={() => setIsModalVisible(false)}
+      />
       <FlowRow style={{ ...headerContainer, justifyContent: "center" }}>
         <Text style={text}>
           {currentActivity ? "Current " : "Last "} Activity
@@ -82,7 +105,9 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
       />
       <FlowRow style={headerContainer}>
         <Text style={text}>Activities</Text>
-        <Text style={text}>Add</Text>
+        <Text style={text} onPress={() => setIsModalVisible(true)}>
+          Add
+        </Text>
       </FlowRow>
       <FlatList
         data={activities}

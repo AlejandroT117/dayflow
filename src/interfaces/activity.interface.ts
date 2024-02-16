@@ -5,3 +5,8 @@ export interface Activity {
   isActive: boolean;
   time: number;
 }
+
+export interface AddActivity {
+  title: string;
+  description: string;
+}

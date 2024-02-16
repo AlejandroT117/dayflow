@@ -93,7 +93,13 @@ export const ActivityItem: React.FC<Props> = ({
           >
             {title}
           </FlowText>
-          <FlowText style={{ ...timeText, userSelect: "none" }}>
+          <FlowText
+            style={{
+              ...timeText,
+              userSelect: "none",
+              fontVariant: ["tabular-nums"],
+            }}
+          >
             {isActive ? <LoadingDots /> : formatTime(time)}
           </FlowText>
         </FlowRow>

@@ -14,14 +14,13 @@ export const ActivityTimer: React.FC<Props> = ({ activity, startTime }) => {
     <FlowHiglightView style={container}>
       <FlowRow style={row}>
         <FlowText style={{ fontWeight: activity?.isActive ? "bold" : "400" }}>
-          {activity?.title || "No Current Activity"}
+          {activity?.title || "Start an activity to show it here"}
         </FlowText>
       </FlowRow>
       <FlowRow style={row}>
-        <FlowText style={time}>
+        <FlowText style={{ ...time, fontVariant: ["tabular-nums"] }}>
           {new Date(
-            (startTime === undefined ? activity?.time || 0 : startTime || 0) *
-              1000
+            (activity?.isActive ? startTime || 0 : activity?.time || 0) * 1000
           )
             .toISOString()
             .substring(11, 19)}
