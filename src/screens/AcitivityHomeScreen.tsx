@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import uuid from "react-native-uuid";
 import { ActivityTimer } from "../components/activity/ActivityTimer";
 import { ActivityItem } from "../components/activity/ActivityItem";
@@ -9,6 +9,8 @@ import { FlowRow } from "../components/overrides";
 import { Activity, AddActivity } from "../interfaces/activity.interface";
 import { loadDayFlowItems, storeDayFlowItems } from "../storage";
 import { ActivityItemCreator } from "../components/activity/ActivityItemCreator";
+import { MaterialIcons } from "@expo/vector-icons";
+import { FlowButton } from "../components/overrides/FlowButton";
 
 interface Props {
   isStorageEnabled: boolean;
@@ -20,6 +22,7 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
   const [prevActivity, setPrevActivity] = useState<Activity>();
   const [startTime, setStartTime] = useState<number>();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isScrollEnabled, setIsScrollEnabled] = useState(true);
 
   const getData = async () => {
     const items = await loadDayFlowItems();
@@ -105,16 +108,23 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
       />
       <FlowRow style={headerContainer}>
         <Text style={text}>Activities</Text>
-        <Text style={text} onPress={() => setIsModalVisible(true)}>
-          Add
-        </Text>
+        <FlowButton handlePress={() => setIsModalVisible(true)}>
+          <MaterialIcons
+            name="playlist-add"
+            size={24}
+            color={COLORS.brightGreen}
+          />
+        </FlowButton>
       </FlowRow>
       <FlatList
         data={activities}
+        scrollEnabled={isScrollEnabled}
         keyExtractor={({ id }) => id}
         renderItem={({ item }) => (
           <ActivityItem
             activity={item}
+            onMove={() => setIsScrollEnabled(false)}
+            onRelease={() => setIsScrollEnabled(true)}
             onActivityChange={checkActivity}
             onTimeChange={handleTimeChange}
           />
@@ -128,6 +138,7 @@ const { container, headerContainer, text } = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
+    maxWidth: 500,
   },
   headerContainer: {
     paddingVertical: 10,

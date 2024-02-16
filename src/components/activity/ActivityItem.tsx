@@ -12,6 +12,8 @@ interface Props {
   activity: Activity;
   onActivityChange: (id: string, state: boolean) => void;
   onTimeChange: (id: string, time: number) => void;
+  onMove: () => void;
+  onRelease: () => void;
 }
 
 var id: number | undefined = undefined;
@@ -20,6 +22,8 @@ export const ActivityItem: React.FC<Props> = ({
   activity,
   onActivityChange,
   onTimeChange,
+  onMove,
+  onRelease,
 }) => {
   const { title, id: activityId, time, isActive } = activity;
   const pan = useRef(new Animated.ValueXY()).current;
@@ -44,6 +48,9 @@ export const ActivityItem: React.FC<Props> = ({
       onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (e, gestState) => {
         const currentX = gestState.dx;
+        if (Math.abs(currentX) > TRESHOLD / 4) {
+          onMove();
+        }
         if (currentX > TRESHOLD) {
           setCurrentState(true);
         }
@@ -57,6 +64,7 @@ export const ActivityItem: React.FC<Props> = ({
         })(e, gestState);
       },
       onPanResponderRelease: () => {
+        onRelease();
         Animated.spring(pan, {
           toValue: { x: 0, y: 0 },
           useNativeDriver: true,

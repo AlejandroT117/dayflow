@@ -1,10 +1,11 @@
-import React, { useMemo } from "react";
+import React, { Children, ReactNode, useMemo } from "react";
 import { GestureResponderEvent, Pressable, StyleSheet } from "react-native";
 import { FlowText } from "./FlowText";
 import { COLORS } from "../../variables/styles";
 
 interface Props {
-  text: string;
+  text?: string;
+  children?: ReactNode;
   isDisabled?: boolean;
   isTransparent?: boolean;
   type?: "primary" | "secondary" | "danger" | "warning";
@@ -17,6 +18,7 @@ export const FlowButton: React.FC<Props> = ({
   isTransparent = true,
   type = "primary",
   handlePress,
+  children,
 }) => {
   const flowTextColor: {
     color: string;
@@ -60,8 +62,13 @@ export const FlowButton: React.FC<Props> = ({
   }, [isDisabled, isTransparent]);
 
   return (
-    <Pressable onPress={handlePress} style={flowButton}>
-      <FlowText style={flowTextColor}>{text}</FlowText>
+    <Pressable
+      onPress={handlePress}
+      style={flowButton}
+      hitSlop={{ bottom: 10, top: 10, right: 5, left: 5 }}
+    >
+      {text && <FlowText style={flowTextColor}>{text}</FlowText>}
+      {children}
     </Pressable>
   );
 };

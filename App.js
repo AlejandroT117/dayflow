@@ -4,7 +4,7 @@ import { ActivityHomeScreen } from "./src/screens/AcitivityHomeScreen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SafeAreaScreen } from "./src/layout/SafeAreaScreen";
 import { checkStorageStatus } from "./src/storage";
-import { FlowText } from "./src/components/overrides";
+import { Platform } from "react-native";
 
 export default function App() {
   const [isStorageEnabled, setIsStorageEnabled] = useState(false);
@@ -16,6 +16,9 @@ export default function App() {
   useEffect(() => {
     checkStorage();
   }, []);
+
+  const containerStyle =
+    Platform.OS === "web" ? { minWidth: 400, margin: "auto" } : {};
 
   return (
     <SafeAreaProvider>
