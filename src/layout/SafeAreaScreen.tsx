@@ -10,9 +10,7 @@ export const SafeAreaScreen: React.FC<Props> = ({ children }) => {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={{ ...container, paddingTop: insets.top }}>
-      {children}
-    </View>
+    <View style={{ ...container, paddingTop: insets.top }}>{children}</View>
   );
 };
 

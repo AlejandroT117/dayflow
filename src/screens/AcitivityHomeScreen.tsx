@@ -5,12 +5,13 @@ import { ActivityTimer } from "../components/activity/ActivityTimer";
 import { ActivityItem } from "../components/activity/ActivityItem";
 import defaultItems from "../data/activities.json";
 import { COLORS, SIZES } from "../variables/styles";
-import { FlowRow } from "../components/overrides";
+import { FlowRow, FlowText } from "../components/overrides";
 import { Activity, AddActivity } from "../interfaces/activity.interface";
 import { loadDayFlowItems, storeDayFlowItems } from "../storage";
 import { ActivityItemCreator } from "../components/activity/ActivityItemCreator";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FlowButton } from "../components/overrides/FlowButton";
+import { ActivityItemDetailed } from "../components/activity/ActivityItemDetailed";
 
 interface Props {
   isStorageEnabled: boolean;
@@ -23,6 +24,7 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
   const [startTime, setStartTime] = useState<number>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isScrollEnabled, setIsScrollEnabled] = useState(true);
+  const [selectedActivity, setSelectedActivity] = useState<Activity>();
 
   const getData = async () => {
     const items = await loadDayFlowItems();
@@ -37,6 +39,12 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
     activities && isStorageEnabled && storeDayFlowItems(activities);
 
     setCurrentActivity(activities.find((act) => act.isActive));
+
+    if (selectedActivity?.id) {
+      setSelectedActivity(
+        activities.find((act) => act.id === selectedActivity.id)
+      );
+    }
   }, [activities, isStorageEnabled]);
 
   useEffect(() => {
@@ -90,8 +98,46 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
     setActivities((activities) => [...activities, newActivity]);
   }, []);
 
+  const editActivity = useCallback(
+    (act: Activity) => {
+      const index = activities.findIndex((ac) => ac.id === act.id);
+
+      if (index !== -1) {
+        setActivities((acts) => acts.map((ac, i) => (i === index ? act : ac)));
+      }
+    },
+    [activities]
+  );
+
+  const onCloseActivityDetailed = useCallback(() => {
+    setSelectedActivity(undefined);
+  }, []);
+
+  const removeActivity = useCallback(
+    (id: string) => {
+      setActivities((acts) => acts.filter((acs) => acs.id !== id));
+    },
+    [onCloseActivityDetailed]
+  );
+
   return (
     <View style={container}>
+      <FlowText>
+        {new Date().toLocaleDateString("en", {
+          weekday: "long",
+          day: "numeric",
+          dayPeriod: "short",
+          month: "short",
+          year: "numeric",
+        })}
+      </FlowText>
+      <ActivityItemDetailed
+        activity={selectedActivity}
+        onClose={onCloseActivityDetailed}
+        onEdit={editActivity}
+        onRemove={removeActivity}
+        onChangeStatus={checkActivity}
+      />
       <ActivityItemCreator
         isVisible={isModalVisible}
         onConfirmAddition={addActivity}
@@ -123,12 +169,16 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
         renderItem={({ item }) => (
           <ActivityItem
             activity={item}
+            onDoubleClick={setSelectedActivity}
             onMove={() => setIsScrollEnabled(false)}
             onRelease={() => setIsScrollEnabled(true)}
             onActivityChange={checkActivity}
             onTimeChange={handleTimeChange}
           />
         )}
+        ListEmptyComponent={
+          <FlowText>No activities found. Add one to start</FlowText>
+        }
       />
     </View>
   );

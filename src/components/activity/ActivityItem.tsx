@@ -1,12 +1,19 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Animated, PanResponder, StyleSheet } from "react-native";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Animated, PanResponder, Pressable, StyleSheet } from "react-native";
 import { Activity } from "../../interfaces/activity.interface";
 import { FlowHiglightView, FlowRow, FlowText } from "../overrides";
 import { COLORS } from "../../variables/styles";
 import { LoadingDots } from "../common/LoadingDots";
 import { formatTime } from "../../utils/formatTime";
 
-const TRESHOLD = 60;
+const TRESHOLD = 40;
+const TAP_DELAY = 350;
 
 interface Props {
   activity: Activity;
@@ -14,6 +21,7 @@ interface Props {
   onTimeChange: (id: string, time: number) => void;
   onMove: () => void;
   onRelease: () => void;
+  onDoubleClick: (activity: Activity) => void;
 }
 
 var id: number | undefined = undefined;
@@ -24,10 +32,12 @@ export const ActivityItem: React.FC<Props> = ({
   onTimeChange,
   onMove,
   onRelease,
+  onDoubleClick,
 }) => {
   const { title, id: activityId, time, isActive } = activity;
   const pan = useRef(new Animated.ValueXY()).current;
   const [currentState, setCurrentState] = useState(isActive);
+  const [lastTimePressed, setLastTimePressed] = useState(0);
 
   useEffect(() => {
     id && clearTimeout(id);
@@ -86,8 +96,18 @@ export const ActivityItem: React.FC<Props> = ({
     [isActive]
   );
 
+  const handlePress = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTimePressed <= TAP_DELAY) {
+      onDoubleClick(activity);
+    }
+    setLastTimePressed(now);
+  }, [activity, lastTimePressed]);
+
   return (
     <Animated.View
+      onPointerDown={handlePress}
+      onTouchStart={handlePress}
       {...panResponder.panHandlers}
       style={{ transform: [{ translateX: pan.x }] }}
     >

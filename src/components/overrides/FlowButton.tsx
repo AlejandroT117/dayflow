@@ -1,5 +1,10 @@
 import React, { Children, ReactNode, useMemo } from "react";
-import { GestureResponderEvent, Pressable, StyleSheet } from "react-native";
+import {
+  GestureResponderEvent,
+  Pressable,
+  StyleSheet,
+  ViewStyle,
+} from "react-native";
 import { FlowText } from "./FlowText";
 import { COLORS } from "../../variables/styles";
 
@@ -10,6 +15,7 @@ interface Props {
   isTransparent?: boolean;
   type?: "primary" | "secondary" | "danger" | "warning";
   handlePress: (e: GestureResponderEvent) => void;
+  style?: ViewStyle;
 }
 
 export const FlowButton: React.FC<Props> = ({
@@ -19,6 +25,7 @@ export const FlowButton: React.FC<Props> = ({
   type = "primary",
   handlePress,
   children,
+  style,
 }) => {
   const flowTextColor: {
     color: string;
@@ -44,12 +51,12 @@ export const FlowButton: React.FC<Props> = ({
     }
 
     return {
-      color: COLORS.semiDarkGray,
+      color: COLORS.white,
       fontWeight: "bold",
     };
-  }, [isDisabled, isTransparent]);
+  }, [isDisabled, isTransparent, type]);
 
-  const flowButton = useMemo(() => {
+  const flowButtonStyle = useMemo(() => {
     if (!isTransparent && isDisabled) {
       return { backgroundColor: COLORS.semiDarkGray };
     }
@@ -59,12 +66,12 @@ export const FlowButton: React.FC<Props> = ({
     }
 
     return { ...styles.button, backgroundColor: styles[type].color };
-  }, [isDisabled, isTransparent]);
+  }, [isDisabled, isTransparent, type]);
 
   return (
     <Pressable
       onPress={handlePress}
-      style={flowButton}
+      style={{ ...flowButtonStyle, ...style }}
       hitSlop={{ bottom: 10, top: 10, right: 5, left: 5 }}
     >
       {text && <FlowText style={flowTextColor}>{text}</FlowText>}
