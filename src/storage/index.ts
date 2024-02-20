@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Activity } from "../interfaces/activity.interface";
 
 const DAYFLOWKEY = "dayFlowItems";
+const TUTORIAL_WATCHED = "dayFlowItemsTutorial";
 
 const storeData = async (key: string, value: any) => {
   try {
@@ -27,6 +28,11 @@ const storeDayFlowItems = (data: Activity[]) => storeData(DAYFLOWKEY, data);
 
 const loadDayFlowItems = async () => await loadData(DAYFLOWKEY);
 
+const storeTutorialWatched = (data: { isWatched: boolean }) =>
+  storeData(TUTORIAL_WATCHED, data);
+
+const loadTutorialWatch = async () => await loadData(TUTORIAL_WATCHED);
+
 const checkStorageStatus = async () => {
   try {
     await AsyncStorage.setItem("flowTestKey", "test");
@@ -43,5 +49,7 @@ export {
   loadData,
   storeDayFlowItems,
   loadDayFlowItems,
+  storeTutorialWatched,
+  loadTutorialWatch,
   checkStorageStatus,
 };

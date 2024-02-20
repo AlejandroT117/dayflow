@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import uuid from "react-native-uuid";
 import { ActivityTimer } from "../components/activity/ActivityTimer";
 import { ActivityItem } from "../components/activity/ActivityItem";
@@ -9,15 +10,18 @@ import { FlowRow, FlowText } from "../components/overrides";
 import { Activity, AddActivity } from "../interfaces/activity.interface";
 import { loadDayFlowItems, storeDayFlowItems } from "../storage";
 import { ActivityItemCreator } from "../components/activity/ActivityItemCreator";
-import { MaterialIcons } from "@expo/vector-icons";
 import { FlowButton } from "../components/overrides/FlowButton";
 import { ActivityItemDetailed } from "../components/activity/ActivityItemDetailed";
 
 interface Props {
   isStorageEnabled: boolean;
+  onOpenTutorial: () => boolean;
 }
 
-export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
+export const ActivityHomeScreen: React.FC<Props> = ({
+  isStorageEnabled,
+  onOpenTutorial,
+}) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [currentActivity, setCurrentActivity] = useState<Activity>();
   const [prevActivity, setPrevActivity] = useState<Activity>();
@@ -120,17 +124,28 @@ export const ActivityHomeScreen: React.FC<Props> = ({ isStorageEnabled }) => {
     [onCloseActivityDetailed]
   );
 
+  const openTutorial = useCallback(() => {
+    onOpenTutorial();
+  }, []);
+
   return (
     <View style={container}>
-      <FlowText>
-        {new Date().toLocaleDateString("en", {
-          weekday: "long",
-          day: "numeric",
-          dayPeriod: "short",
-          month: "short",
-          year: "numeric",
-        })}
-      </FlowText>
+      <FlowRow>
+        <FlowText>
+          {new Date().toLocaleDateString("en", {
+            weekday: "long",
+            day: "numeric",
+            dayPeriod: "short",
+            month: "short",
+            year: "numeric",
+          })}
+        </FlowText>
+        <FlowButton handlePress={openTutorial}>
+          <FlowText style={{ fontWeight: "bold", color: COLORS.brightBlue }}>
+            Tutorial
+          </FlowText>
+        </FlowButton>
+      </FlowRow>
       <ActivityItemDetailed
         activity={selectedActivity}
         onClose={onCloseActivityDetailed}

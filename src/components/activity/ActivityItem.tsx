@@ -12,7 +12,7 @@ import { COLORS } from "../../variables/styles";
 import { LoadingDots } from "../common/LoadingDots";
 import { formatTime } from "../../utils/formatTime";
 
-const TRESHOLD = 40;
+export const TRESHOLD = 40;
 const TAP_DELAY = 350;
 
 interface Props {
@@ -22,6 +22,7 @@ interface Props {
   onMove: () => void;
   onRelease: () => void;
   onDoubleClick: (activity: Activity) => void;
+  controls?: boolean;
 }
 
 var id: number | undefined = undefined;
@@ -33,6 +34,7 @@ export const ActivityItem: React.FC<Props> = ({
   onMove,
   onRelease,
   onDoubleClick,
+  controls = true,
 }) => {
   const { title, id: activityId, time, isActive } = activity;
   const pan = useRef(new Animated.ValueXY()).current;
@@ -52,8 +54,11 @@ export const ActivityItem: React.FC<Props> = ({
     }, 1000);
   }, [isActive, time]);
 
-  const panResponder = useRef(
-    PanResponder.create({
+  const panResponder = useMemo(() => {
+    if (!controls) {
+      return PanResponder.create({});
+    }
+    return PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (e, gestState) => {
@@ -80,8 +85,8 @@ export const ActivityItem: React.FC<Props> = ({
           useNativeDriver: true,
         }).start();
       },
-    })
-  ).current;
+    });
+  }, [controls]);
 
   useEffect(() => {
     if (currentState) {
